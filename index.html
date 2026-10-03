@@ -28,9 +28,9 @@ body {
     align-items: center;
 }
 
-/* =========================
-   GAME SCREEN
-   ========================= */
+/* ==============================
+   MAIN VERTICAL TIKTOK SCREEN
+   ============================== */
 
 #game {
     position: relative;
@@ -41,6 +41,8 @@ body {
     background: #000;
 }
 
+/* Background graphic */
+
 #backgroundImage {
     position: absolute;
     inset: 0;
@@ -50,17 +52,12 @@ body {
 }
 
 
-/* =========================
-   LIVE COUNTDOWN TIMER
-   ========================= */
+/* ==============================
+   LIVE TIMER
+   ============================== */
 
 #timerBox {
     position: absolute;
-
-    /*
-    We can fine-tune these after
-    seeing it on your screen.
-    */
 
     left: 31%;
     top: 59.2%;
@@ -79,35 +76,34 @@ body {
 
     box-shadow:
         0 0 8px #22e7ff,
-        0 0 18px #22e7ff;
+        0 0 18px #22e7ff,
+        0 0 28px rgba(34,231,255,.65);
 
-    z-index: 5;
+    z-index: 10;
 }
 
 #timer {
-    color: white;
+    color: #ffffff;
 
-    font-family:
-        "Courier New",
-        monospace;
+    font-family: "Courier New", monospace;
+
+    font-size: clamp(38px, 10vw, 76px);
 
     font-weight: 900;
-
-    font-size: clamp(
-        42px,
-        11vw,
-        78px
-    );
 
     line-height: 1;
 
     letter-spacing: 1px;
+
+    text-shadow:
+        0 0 5px #fff,
+        0 0 10px rgba(255,255,255,.5);
 }
 
 
-/* =========================
+/* ==============================
    3 - 2 - 1 - GO
-   ========================= */
+   ============================== */
 
 #intro {
     position: absolute;
@@ -117,30 +113,28 @@ body {
     justify-content: center;
     align-items: center;
 
-    background:
-        rgba(0,0,0,.72);
+    background: rgba(0,0,0,.70);
 
     color: #ffe600;
 
-    font-size: clamp(
-        100px,
-        35vw,
-        220px
-    );
+    font-size: clamp(90px, 30vw, 200px);
 
     font-weight: 1000;
 
+    text-align: center;
+
     text-shadow:
-        5px 5px 0 #000,
+        5px 5px 0 #e60000,
+        8px 8px 0 #000,
         0 0 25px #ffe600;
 
-    z-index: 20;
+    z-index: 30;
 }
 
 
-/* =========================
-   TIME'S UP SCREEN
-   ========================= */
+/* ==============================
+   TIME'S UP
+   ============================== */
 
 #timesUp {
     position: absolute;
@@ -156,21 +150,15 @@ body {
 
     padding: 25px;
 
-    background:
-        rgba(0,0,0,.82);
+    background: rgba(0,0,0,.84);
 
-    z-index: 30;
+    z-index: 40;
 }
 
 #timesUpTitle {
-
     color: #ffe600;
 
-    font-size: clamp(
-        60px,
-        16vw,
-        110px
-    );
+    font-size: clamp(58px, 16vw, 105px);
 
     font-weight: 1000;
 
@@ -182,42 +170,27 @@ body {
 }
 
 #timesUpText {
-
     margin-top: 30px;
 
-    color: white;
+    color: #fff;
 
-    font-size: clamp(
-        23px,
-        6vw,
-        38px
-    );
+    font-size: clamp(22px, 6vw, 38px);
 
     font-weight: 900;
 
-    line-height: 1.3;
+    line-height: 1.35;
 }
 
 #timesUpText span {
     color: #ffe600;
 }
 
-
-/* =========================
-   NEXT ROUND MESSAGE
-   ========================= */
-
-#nextRound {
-
+#restartMessage {
     margin-top: 35px;
 
     color: #22e7ff;
 
-    font-size: clamp(
-        18px,
-        5vw,
-        30px
-    );
+    font-size: clamp(18px, 5vw, 28px);
 
     font-weight: 900;
 }
@@ -230,7 +203,7 @@ body {
 
 <div id="game">
 
-    <!-- DAY 1 IMAGE -->
+    <!-- BACKGROUND -->
 
     <img
         id="backgroundImage"
@@ -239,7 +212,7 @@ body {
     >
 
 
-    <!-- REAL TIMER -->
+    <!-- LIVE ONE-MINUTE TIMER -->
 
     <div id="timerBox">
 
@@ -250,14 +223,14 @@ body {
     </div>
 
 
-    <!-- INTRO -->
+    <!-- 3 2 1 GO -->
 
     <div id="intro">
         3
     </div>
 
 
-    <!-- TIME'S UP -->
+    <!-- TIME'S UP SCREEN -->
 
     <div id="timesUp">
 
@@ -277,8 +250,8 @@ body {
 
         </div>
 
-        <div id="nextRound">
-            NEW ROUND STARTING...
+        <div id="restartMessage">
+            NEXT ROUND STARTING...
         </div>
 
     </div>
@@ -288,28 +261,30 @@ body {
 
 <script>
 
-/* ====================================
-   DOC'S NAME 5 — AUTOMATIC GAME LOOP
-   ==================================== */
+/* ==========================================
+   DOC'S NAME 5 CHALLENGE
+   ONE-MINUTE AUTOMATIC TIMER
+   ========================================== */
 
 
 /*
-   SETTINGS
+   ONLY TIMER SETTING
 
-   Change these later if desired.
+   60 seconds = 1 minute
 */
 
-const CHALLENGE_SECONDS = 15;
+const CHALLENGE_SECONDS = 60;
+
 
 /*
-   How long TIME'S UP stays
-   on screen before restarting.
+   Time's Up screen stays
+   visible for 5 seconds.
 */
 
 const RESULTS_SECONDS = 5;
 
 
-/* ELEMENTS */
+/* Get screen elements */
 
 const timer =
     document.getElementById("timer");
@@ -324,41 +299,55 @@ const timesUp =
     document.getElementById("timesUp");
 
 
-/* ====================================
-   HELPER — WAIT
-   ==================================== */
+/* ==========================================
+   WAIT FUNCTION
+   ========================================== */
 
-function wait(ms) {
+function wait(milliseconds) {
 
     return new Promise(resolve => {
 
-        setTimeout(resolve, ms);
+        setTimeout(resolve, milliseconds);
 
     });
 
 }
 
 
-/* ====================================
-   UPDATE TIMER
-   ==================================== */
+/* ==========================================
+   TIMER DISPLAY
 
-function updateTimer(seconds) {
+   60 becomes 01:00
+   59 becomes 00:59
+   5 becomes 00:05
+   0 becomes 00:00
+   ========================================== */
 
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+function updateTimer(totalSeconds) {
+
+    const minutes =
+        Math.floor(totalSeconds / 60);
+
+    const seconds =
+        totalSeconds % 60;
+
+    const formattedMinutes =
+        String(minutes).padStart(2, "0");
+
+    const formattedSeconds =
+        String(seconds).padStart(2, "0");
 
     timer.textContent =
-        String(minutes).padStart(2, "0") +
+        formattedMinutes +
         ":" +
-        String(secs).padStart(2, "0");
+        formattedSeconds;
+
 }
 
 
-/* ====================================
+/* ==========================================
    INTRO
-   3 - 2 - 1 - GO!
-   ==================================== */
+   ========================================== */
 
 async function playIntro() {
 
@@ -396,47 +385,59 @@ async function playIntro() {
 }
 
 
-/* ====================================
-   15 SECOND COUNTDOWN
-   ==================================== */
+/* ==========================================
+   ONE-MINUTE COUNTDOWN
+   ========================================== */
 
 async function playCountdown() {
 
+    /*
+       Begin at exactly 01:00
+    */
+
+    updateTimer(CHALLENGE_SECONDS);
+
+
+    /*
+       Wait one second before
+       changing 01:00 to 00:59.
+    */
+
+    await wait(1000);
+
+
     for (
-        let seconds = CHALLENGE_SECONDS;
-        seconds >= 0;
-        seconds--
+        let remaining = CHALLENGE_SECONDS - 1;
+        remaining >= 0;
+        remaining--
     ) {
 
-        updateTimer(seconds);
+        updateTimer(remaining);
 
 
         /*
-        Pulse during final
-        five seconds.
+           Pulse during final
+           five seconds.
         */
 
         if (
-            seconds <= 5 &&
-            seconds > 0
+            remaining <= 5 &&
+            remaining > 0
         ) {
 
             timerBox.animate(
 
                 [
                     {
-                        transform:
-                            "scale(1)"
+                        transform: "scale(1)"
                     },
 
                     {
-                        transform:
-                            "scale(1.08)"
+                        transform: "scale(1.08)"
                     },
 
                     {
-                        transform:
-                            "scale(1)"
+                        transform: "scale(1)"
                     }
                 ],
 
@@ -449,7 +450,12 @@ async function playCountdown() {
         }
 
 
-        if (seconds > 0) {
+        /*
+           Keep each number visible
+           for one full second.
+        */
+
+        if (remaining > 0) {
 
             await wait(1000);
 
@@ -457,12 +463,19 @@ async function playCountdown() {
 
     }
 
+
+    /*
+       Let 00:00 show briefly.
+    */
+
+    await wait(500);
+
 }
 
 
-/* ====================================
-   TIME'S UP
-   ==================================== */
+/* ==========================================
+   TIME'S UP SCREEN
+   ========================================== */
 
 async function showTimesUp() {
 
@@ -472,33 +485,35 @@ async function showTimesUp() {
         RESULTS_SECONDS * 1000
     );
 
+    timesUp.style.display = "none";
+
 }
 
 
-/* ====================================
-   AUTOMATIC LOOP
-   ==================================== */
+/* ==========================================
+   AUTOMATIC CONTINUOUS LOOP
+   ========================================== */
 
 async function runGame() {
 
     while (true) {
 
         /*
-        3 - 2 - 1 - GO
+           3 - 2 - 1 - GO!
         */
 
         await playIntro();
 
 
         /*
-        60 second challenge
+           01:00 countdown
         */
 
         await playCountdown();
 
 
         /*
-        Time's Up
+           TIME'S UP
         */
 
         await showTimesUp();
@@ -508,13 +523,13 @@ async function runGame() {
 }
 
 
-/* ====================================
+/* ==========================================
    START AUTOMATICALLY
-   ==================================== */
+   ========================================== */
 
 window.addEventListener(
     "load",
-    () => {
+    function () {
 
         runGame();
 
