@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Doc's Name 5 Challenge</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* =========================
+   GAME SCREEN
+   ========================= */
+
+#game {
+    position: relative;
+    height: 100vh;
+    aspect-ratio: 9 / 16;
+    max-width: 100vw;
+    overflow: hidden;
+    background: #000;
+}
+
+#backgroundImage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* =========================
+   LIVE COUNTDOWN TIMER
+   ========================= */
+
+#timerBox {
+    position: absolute;
+
+    /*
+    We can fine-tune these after
+    seeing it on your screen.
+    */
+
+    left: 31%;
+    top: 59.2%;
+
+    width: 38%;
+    height: 11%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: #050505;
+
+    border: 4px solid #22e7ff;
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 8px #22e7ff,
+        0 0 18px #22e7ff;
+
+    z-index: 5;
+}
+
+#timer {
+    color: white;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-weight: 900;
+
+    font-size: clamp(
+        42px,
+        11vw,
+        78px
+    );
+
+    line-height: 1;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================
+   3 - 2 - 1 - GO
+   ========================= */
+
+#intro {
+    position: absolute;
+    inset: 0;
+
+    display: none;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        rgba(0,0,0,.72);
+
+    color: #ffe600;
+
+    font-size: clamp(
+        100px,
+        35vw,
+        220px
+    );
+
+    font-weight: 1000;
+
+    text-shadow:
+        5px 5px 0 #000,
+        0 0 25px #ffe600;
+
+    z-index: 20;
+}
+
+
+/* =========================
+   TIME'S UP SCREEN
+   ========================= */
+
+#timesUp {
+    position: absolute;
+    inset: 0;
+
+    display: none;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    padding: 25px;
+
+    background:
+        rgba(0,0,0,.82);
+
+    z-index: 30;
+}
+
+#timesUpTitle {
+
+    color: #ffe600;
+
+    font-size: clamp(
+        60px,
+        16vw,
+        110px
+    );
+
+    font-weight: 1000;
+
+    line-height: .95;
+
+    text-shadow:
+        5px 5px 0 #e60000,
+        8px 8px 0 #000;
+}
+
+#timesUpText {
+
+    margin-top: 30px;
+
+    color: white;
+
+    font-size: clamp(
+        23px,
+        6vw,
+        38px
+    );
+
+    font-weight: 900;
+
+    line-height: 1.3;
+}
+
+#timesUpText span {
+    color: #ffe600;
+}
+
+
+/* =========================
+   NEXT ROUND MESSAGE
+   ========================= */
+
+#nextRound {
+
+    margin-top: 35px;
+
+    color: #22e7ff;
+
+    font-size: clamp(
+        18px,
+        5vw,
+        30px
+    );
+
+    font-weight: 900;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div id="game">
+
+    <!-- DAY 1 IMAGE -->
+
+    <img
+        id="backgroundImage"
+        src="a_vibrant_colorful_game_show_style_vertical_poste.png"
+        alt="Doc's Name 5 Challenge"
+    >
+
+
+    <!-- REAL TIMER -->
+
+    <div id="timerBox">
+
+        <div id="timer">
+            00:15
+        </div>
+
+    </div>
+
+
+    <!-- INTRO -->
+
+    <div id="intro">
+        3
+    </div>
+
+
+    <!-- TIME'S UP -->
+
+    <div id="timesUp">
+
+        <div id="timesUpTitle">
+            TIME'S<br>UP!
+        </div>
+
+        <div id="timesUpText">
+
+            How many did you get?
+
+            <br><br>
+
+            <span>
+                PUT YOUR 5 IN THE COMMENTS!
+            </span>
+
+        </div>
+
+        <div id="nextRound">
+            NEW ROUND STARTING...
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ====================================
+   DOC'S NAME 5 — AUTOMATIC GAME LOOP
+   ==================================== */
+
+
+/*
+   SETTINGS
+
+   Change these later if desired.
+*/
+
+const CHALLENGE_SECONDS = 15;
+
+/*
+   How long TIME'S UP stays
+   on screen before restarting.
+*/
+
+const RESULTS_SECONDS = 5;
+
+
+/* ELEMENTS */
+
+const timer =
+    document.getElementById("timer");
+
+const timerBox =
+    document.getElementById("timerBox");
+
+const intro =
+    document.getElementById("intro");
+
+const timesUp =
+    document.getElementById("timesUp");
+
+
+/* ====================================
+   HELPER — WAIT
+   ==================================== */
+
+function wait(ms) {
+
+    return new Promise(resolve => {
+
+        setTimeout(resolve, ms);
+
+    });
+
+}
+
+
+/* ====================================
+   UPDATE TIMER
+   ==================================== */
+
+function updateTimer(seconds) {
+
+    timer.textContent =
+        "00:" +
+        String(seconds).padStart(2, "0");
+
+}
+
+
+/* ====================================
+   INTRO
+   3 - 2 - 1 - GO!
+   ==================================== */
+
+async function playIntro() {
+
+    timesUp.style.display = "none";
+
+    timerBox.style.display = "flex";
+
+    updateTimer(CHALLENGE_SECONDS);
+
+    intro.style.display = "flex";
+
+
+    intro.textContent = "3";
+
+    await wait(700);
+
+
+    intro.textContent = "2";
+
+    await wait(700);
+
+
+    intro.textContent = "1";
+
+    await wait(700);
+
+
+    intro.textContent = "GO!";
+
+    await wait(700);
+
+
+    intro.style.display = "none";
+
+}
+
+
+/* ====================================
+   15 SECOND COUNTDOWN
+   ==================================== */
+
+async function playCountdown() {
+
+    for (
+        let seconds = CHALLENGE_SECONDS;
+        seconds >= 0;
+        seconds--
+    ) {
+
+        updateTimer(seconds);
+
+
+        /*
+        Pulse during final
+        five seconds.
+        */
+
+        if (
+            seconds <= 5 &&
+            seconds > 0
+        ) {
+
+            timerBox.animate(
+
+                [
+                    {
+                        transform:
+                            "scale(1)"
+                    },
+
+                    {
+                        transform:
+                            "scale(1.08)"
+                    },
+
+                    {
+                        transform:
+                            "scale(1)"
+                    }
+                ],
+
+                {
+                    duration: 450
+                }
+
+            );
+
+        }
+
+
+        if (seconds > 0) {
+
+            await wait(1000);
+
+        }
+
+    }
+
+}
+
+
+/* ====================================
+   TIME'S UP
+   ==================================== */
+
+async function showTimesUp() {
+
+    timesUp.style.display = "flex";
+
+    await wait(
+        RESULTS_SECONDS * 1000
+    );
+
+}
+
+
+/* ====================================
+   AUTOMATIC LOOP
+   ==================================== */
+
+async function runGame() {
+
+    while (true) {
+
+        /*
+        3 - 2 - 1 - GO
+        */
+
+        await playIntro();
+
+
+        /*
+        15 second challenge
+        */
+
+        await playCountdown();
+
+
+        /*
+        Time's Up
+        */
+
+        await showTimesUp();
+
+    }
+
+}
+
+
+/* ====================================
+   START AUTOMATICALLY
+   ==================================== */
+
+window.addEventListener(
+    "load",
+    () => {
+
+        runGame();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
